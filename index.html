@@ -5649,6 +5649,18 @@ function buildUsersMgmtPanel() {
         + '</div></div>';
     }
 
+    // Change username (owner can change anyone's; any user can change own)
+    if (isOwner || isMe) {
+      html += '<button onclick="showChangeUsername(\'' + _esc(u.id) + '\')" style="width:100%;margin-top:6px;background:var(--color-surface);color:var(--brand-500);border:1px solid var(--brand-500);border-radius:7px;font-size:11px;padding:5px;cursor:pointer;font-family:var(--font-sans);">✏️ Change username</button>'
+        + '<div id="cu-form-'+_esc(u.id)+'" style="display:none;margin-top:8px;padding:10px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:8px;">'
+        + '<input type="text" id="cu-new-'+_esc(u.id)+'" placeholder="New username (a-z, 0-9, _)" style="width:100%;padding:7px 10px;margin-bottom:6px;border-radius:7px;border:1px solid var(--color-border);background:var(--color-surface-2);color:var(--color-text-primary);font-size:12px;box-sizing:border-box;">'
+        + '<div id="cu-err-'+_esc(u.id)+'" style="font-size:11px;color:var(--red-text);margin-bottom:6px;min-height:16px;"></div>'
+        + '<div style="display:flex;gap:6px;">'
+        + '<button onclick="doChangeUsername(\'' + _esc(u.id) + '\')" style="flex:1;padding:7px;background:var(--green);color:white;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">Save</button>'
+        + '<button onclick="document.getElementById(\'cu-form-'+_esc(u.id)+'\').style.display=\'none\'" style="padding:7px 12px;background:var(--color-surface-2);color:var(--color-text-secondary);border:1px solid var(--color-border);border-radius:7px;font-size:12px;cursor:pointer;">Cancel</button>'
+        + '</div></div>';
+    }
+
     // Remove button (owner only, not on self)
     if (isOwner && !isMe) {
       html += '<button onclick="deleteUser(\'' + _esc(u.id) + '\')" style="width:100%;margin-top:4px;background:var(--red-bg);color:var(--red-text);border:1px solid var(--red-bg);border-radius:7px;font-size:11px;padding:5px;cursor:pointer;font-family:var(--font-sans);">Remove account</button>';
@@ -5663,6 +5675,27 @@ function buildUsersMgmtPanel() {
   }
 
   panel.innerHTML = html;
+}
+
+// Show/hide change-username form
+function showChangeUsername(userId) {
+  const f = document.getElementById('cu-form-' + userId);
+  if (f) { f.style.display = f.style.display === 'none' ? 'block' : 'none'; }
+}
+// Save new username
+function doChangeUsername(userId) {
+  const errEl = document.getElementById('cu-err-' + userId);
+  const newUn = (document.getElementById('cu-new-' + userId).value || '').trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
+  if (!newUn || newUn.length < 3) { errEl.textContent = 'Min 3 chars (a-z, 0-9, _)'; return; }
+  const users = _authLoad();
+  if (users.find(function(u){ return u.username === newUn && u.id !== userId; })) { errEl.textContent = 'Username already taken'; return; }
+  const u = users.find(function(u){ return u.id === userId; });
+  if (!u) return;
+  u.username = newUn;
+  _authSave(users);
+  if (currentUser && currentUser.id === userId) { currentUser.username = newUn; }
+  t('✅ Username changed to @' + newUn);
+  buildUsersPanel();
 }
 
 // Change role of a user
