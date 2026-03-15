@@ -5695,7 +5695,7 @@ function doChangeUsername(userId) {
   _authSave(users);
   if (currentUser && currentUser.id === userId) { currentUser.username = newUn; }
   t('✅ Username changed to @' + newUn);
-  buildUsersPanel();
+  buildUsersMgmtPanel();
 }
 
 // Change role of a user
