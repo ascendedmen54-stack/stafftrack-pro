@@ -5325,9 +5325,11 @@ function selectRestaurant(restId) {
 
   const rest = _restsLoad().find(r => r.id === restId);
   if (rest) {
-    const h = document.getElementById('rname-hdr');
-    if (h) h.textContent = rest.name;
-    if (document.getElementById('cfg-rname')) document.getElementById('cfg-rname').value = rest.name;
+    // Only set name from list if blob didn't already set it (new restaurant has no blob)
+    const _rEl = document.getElementById('cfg-rname');
+    if (_rEl && !_rEl.value) _rEl.value = rest.name;
+    const _rHdr = document.getElementById('rname-hdr');
+    if (_rHdr) _rHdr.textContent = (_rEl && _rEl.value) ? _rEl.value : rest.name;
   }
 
   showMainApp();
@@ -6596,4 +6598,3 @@ window._stopAuthParticles=function(){};
 
 </body>
 </html>
-
