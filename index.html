@@ -3462,6 +3462,11 @@ function buildSalaryList(){
     </div>`;
     return;
   }
+  // Staff role but no linked account — block full list
+  if (currentUser && currentUser.role === 'staff') {
+    document.getElementById('salary-list').innerHTML=`<div style="padding:40px 20px;text-align:center;color:var(--color-text-secondary);"><div style="font-size:48px;margin-bottom:16px;">🔗</div><div style="font-size:15px;font-weight:700;color:var(--color-text-primary);margin-bottom:8px;">Account Not Linked</div><div style="font-size:13px;line-height:1.6;">Your account is not linked to a staff member.<br>Ask your manager to link your account in the Users section.</div></div>`;
+    return;
+  }
   document.getElementById('salary-list').innerHTML=staff.map((s,i)=>{
     if (false) return ''; // placeholder — admin/manager see all
     const c=cl(i),r=calcStaff(i),nc=r.totalDed>0?'var(--red)':'var(--green)';
@@ -5623,7 +5628,7 @@ function buildUsersMgmtPanel() {
       html += '<div style="margin-bottom:8px;">'
         + '<div style="font-size:10px;font-weight:600;color:var(--color-text-secondary);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.05em;">Linked Staff Member</div>'
         + '<select onchange="linkStaffToUser(\''+_esc(u.id)+'\',this.value)" style="width:100%;font-size:12px;border-radius:7px;border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text-primary);padding:6px 8px;cursor:pointer;">'
-        + '<option value="">— Not linked (sees all staff) —</option>'
+        + '<option value="">— Not linked —</option>'
         + staffOpts
         + '</select>'
         + '<div style="font-size:10px;color:var(--color-text-muted);margin-top:3px;">When linked, this account only sees their own attendance row.</div>'
